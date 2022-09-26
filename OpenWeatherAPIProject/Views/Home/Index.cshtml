@@ -1,10 +1,17 @@
-﻿@model OpenWeatherAPIProject.Models.Weather
-@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model OpenWeatherAPIProject.Models.Root
 
 <div class="weatherToday">
-    <h1></h1>
+
+    <div class="card">
+        <div class="card-body text-center">
+            <img src="@ViewData["Icon"].ToString()" height="100px" asp-append-version="true"/>
+            <h2>@Html.DisplayFor(model => model.main.temp)°</h2>
+            <h3>@Html.DisplayFor(model => model.name)</h3>
+            <p>Current weather: @Html.DisplayFor(model => model.weather.First().description)</p>
+        </div>
+    </div>
+
+    <!-- <h1>@Html.DisplayFor(model => model.name)</h1> -->
 </div>
 
 <div class="weatherNextDayss">

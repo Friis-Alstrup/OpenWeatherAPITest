@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using OpenWeatherAPIProject.Models;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace OpenWeatherAPIProject.Controllers
@@ -16,29 +18,25 @@ namespace OpenWeatherAPIProject.Controllers
 
         public async Task<IActionResult> Index()
         {
-            using HttpClient client = new()
+            using (var client = new HttpClient())
             {
-                BaseAddress = new Uri("https://api.openweathermap.org")
-            };
+                client.BaseAddress = new Uri("https://localhost:7181");
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            var responseMessage = await client.GetAsync("/data/2.5/weather?lat=44.34&lon=10.99&appid=aefafa7213efcac5d66b28365b99db4d");
+                HttpResponseMessage message = await client.GetAsync("weather/today");
 
-            var jsonResponse = await responseMessage.Content.ReadAsStringAsync();
+                if (message.IsSuccessStatusCode)
+                {
+                    var response = message.Content.ReadAsStringAsync().Result;
+                    Root? weather = JsonConvert.DeserializeObject<Root>(response);
+                    ViewData["Icon"] = "http://openweathermap.org/img/wn/" + weather?.weather.First().icon + "@2x.png";
 
-            Weather? weather = JsonSerializer.Deserialize<Weather>(jsonResponse);
+                    return View(weather);
+                }
+            }
 
-            return View(weather);
-        }
-
-        public IActionResult Privacy()
-        {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
