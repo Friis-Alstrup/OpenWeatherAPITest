@@ -4,16 +4,41 @@
 
     <div class="card">
         <div class="card-body text-center">
-            <img src="@ViewData["Icon"].ToString()" height="100px" asp-append-version="true"/>
-            <h2>@Html.DisplayFor(model => model.main.temp)°</h2>
-            <h3>@Html.DisplayFor(model => model.name)</h3>
-            <p>Current weather: @Html.DisplayFor(model => model.weather.First().description)</p>
+            @{
+                string @uri = "https://openweathermap.org/img/wn/" + Model.list.First().weather.First().icon + "@2x.png";
+                <img src="@uri" alt=" Weather Icon ">
+            }
+            <h2>@Html.DisplayFor(model => model.list.First().main.temp)°</h2>
+            <h3>@Html.DisplayFor(model => model.city.name)</h3>
+            <p>Current weather: @Html.DisplayFor(model => model.list.First().weather.First().description)</p>
         </div>
     </div>
-
-    <!-- <h1>@Html.DisplayFor(model => model.name)</h1> -->
 </div>
 
-<div class="weatherNextDayss">
-
+<div class="weatherNextDays">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Temp</th>
+                <th scope="col">Weather</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.list)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(model => item.dt_txt)</td>
+                    <td>@Html.DisplayFor(model => item.main.temp)°</td>
+                    <td>
+                        @{
+                            string @uri1 = "https://openweathermap.org/img/wn/" + item.weather.First().icon + ".png";
+                            <img src="@uri1" alt=" Weather Icon ">
+                        }
+                        @Html.DisplayFor(model => item.weather.First().description)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

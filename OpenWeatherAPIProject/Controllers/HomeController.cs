@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using OpenWeatherAPIProject.Models;
-using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Text.Json;
+using OpenWeatherAPIProject.Models;
 
 namespace OpenWeatherAPIProject.Controllers
 {
@@ -24,19 +22,17 @@ namespace OpenWeatherAPIProject.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage message = await client.GetAsync("weather/today");
+                HttpResponseMessage message = await client.GetAsync("weather/forecast");
 
                 if (message.IsSuccessStatusCode)
                 {
                     var response = message.Content.ReadAsStringAsync().Result;
                     Root? weather = JsonConvert.DeserializeObject<Root>(response);
-                    ViewData["Icon"] = "http://openweathermap.org/img/wn/" + weather?.weather.First().icon + "@2x.png";
-
                     return View(weather);
                 }
-            }
 
-            return View();
+            }
+            return NotFound();
         }
     }
 }
