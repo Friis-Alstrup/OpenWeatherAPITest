@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Net.Http.Headers;
-using OpenWeatherAPIProject.Models;
+using System.Text.Json;
+using WeatherLibrary;
 
 namespace OpenWeatherAPIProject.Controllers
 {
@@ -14,7 +14,7 @@ namespace OpenWeatherAPIProject.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? unit, string weatherType)
         {
             using (var client = new HttpClient())
             {
@@ -22,12 +22,27 @@ namespace OpenWeatherAPIProject.Controllers
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                HttpResponseMessage message = await client.GetAsync("weather/forecast");
+                if (unit == null) unit = "metric";
+                if (weatherType == null) weatherType = "all";
+
+                HttpResponseMessage message = await client.GetAsync($"weather/forecast?unit={unit}");
 
                 if (message.IsSuccessStatusCode)
                 {
-                    var response = message.Content.ReadAsStringAsync().Result;
-                    Root? weather = JsonConvert.DeserializeObject<Root>(response);
+                    var response = await message.Content.ReadAsStringAsync();
+                    Root? weather = JsonSerializer.Deserialize<Root>(response);
+
+
+                    if (weatherType == "all")
+                    {
+                    } else
+                    {
+                        foreach (var a in weather.list.ToList())
+                        {
+                            if (a.weather.First().description != weatherType) weather.list.Remove(a);
+                        }
+                    }
+
                     return View(weather);
                 }
 
